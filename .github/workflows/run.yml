@@ -1,0 +1,27 @@
+name: Telegram Auto Views Daily 500
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # প্রতিদিন বাংলাদেশ সময় সকাল ৬টায় অটোমেটিক স্টার্ট হবে
+  workflow_dispatch: # ম্যানুয়ালি ক্লিক করে রান করার অপশন
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Execute Throttled View Loop
+        run: |
+          # ৩ ঘণ্টার একটি সেশন রান হবে যাতে ২৫০-৩০০ ভিউ কাউন্ট লক হবে
+          timeout 10800 bash -c 'while true; do curl -s "https://proxyscrape.com" > asian_proxies.txt; python main.py -m file -p asian_proxies.txt -t socks5 -c IBIIXi -pt 12 -cc 1; sleep 170; done'
