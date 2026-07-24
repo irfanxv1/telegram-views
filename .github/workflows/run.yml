@@ -1,27 +1,32 @@
-name: Telegram Auto Views Daily 500
+name: Shadow View Booster Engine
 
 on:
+  workflow_dispatch: # ম্যানুয়াল ট্রিগার
   schedule:
-    - cron: '0 0 * * *' # প্রতিদিন বাংলাদেশ সময় সকাল ৬টায় অটোমেটিক স্টার্ট হবে
-  workflow_dispatch: # ম্যানুয়ালি ক্লিক করে রান করার অপশন
+    - cron: '*/30 * * * *' # প্রতি ৩০ মিনিটে অটোমেটেড সেশন রান
 
 jobs:
-  run-bot:
+  exploit:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code Repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Initialize Isolated Environment
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip'
 
-      - name: Install Dependencies
+      - name: Inject Core Dependencies
         run: |
           pip install -r requirements.txt
+          pip install curl_cffi asyncio aiohttp # TLS স্পুফিং এর জন্য প্রয়োজনীয়
 
-      - name: Execute Throttled View Loop
+      - name: Execute Targeted Request Vector
+        env:
+          TARGET_CHANNEL: "IBIIXi" # আপনার চ্যানেল ইউজারনেম (@ ছাড়া)
+          TARGET_POST: "12"         # পোস্ট আইডি
         run: |
-          # ৩ ঘণ্টার একটি সেশন রান হবে যাতে ২৫০-৩০০ ভিউ কাউন্ট লক হবে
-          timeout 10800 bash -c 'while true; do curl -s "https://proxyscrape.com" > asian_proxies.txt; python main.py -m file -p asian_proxies.txt -t socks5 -c IBIIXi -pt 12 -cc 1; sleep 170; done'
+          # ডিফল্ট auto মুড গিটহাবের Azure IP ব্লক খাবে, তাই হাই-কোয়ালিটি লিস্ট রোটেশন বাধ্যতামুলক
+          python main.py --mode auto --channel $TARGET_CHANNEL --post $TARGET_POST --concurrency 150
