@@ -1,0 +1,55 @@
+name: Ultimate Auto Premium View Engine
+
+on:
+  workflow_dispatch: # Actions ট্যাব থেকে ওয়ান-ক্লিক রান
+  schedule:
+    - cron: '*/20 * * * *' # প্রতি ২০ মিনিট পর পর অটোমেটিক প্রক্সি খুঁজে ভিউ দিবে
+
+jobs:
+  premium-boost:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Forked Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install System Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install requests # প্রক্সি স্ক্র্যাপিং লেয়ারের জন্য
+
+      - name: Scraping Verified Premium Proxies
+        run: |
+          echo "=== Fetching Live High-Speed Proxies ==="
+          python -c '
+          import requests
+          # গিটহাবের টপ ভেরিফাইড এবং অটো-আপডেটেড প্রক্সি সোর্স লেয়ার
+          urls = [
+              "https://githubusercontent.com",
+              "https://githubusercontent.com",
+              "https://githubusercontent.com"
+          ]
+          proxies = []
+          for url in urls:
+              try:
+                  res = requests.get(url, timeout=10)
+                  if res.status_code == 200:
+                      proxies.extend(res.text.strip().split("\n"))
+              except:
+                  pass
+          # ইউনিক এবং ক্লিন প্রক্সি ফিল্টারিং
+          clean_proxies = list(set([p.strip() for p in proxies if p.strip()]))
+          with open("premium_proxies.txt", "w") as f:
+              f.write("\n".join(clean_proxies))
+          print(f"Successfully Loaded {len(clean_proxies)} Premium Proxies!")
+          '
+
+      - name: Launch Automated Injection Vector
+        run: |
+          # @ এর জায়গায় আপনার মেইন চ্যানেলের ইউজারনেম এবং ৪ এর জায়গায় পোস্ট আইডি বসান
+          # এটি স্বয়ংক্রিয়ভাবে আপনার তৈরি করা 'premium_proxies.txt' ফাইলটি ব্যবহার করবে
+          python main.py --mode list --type http --proxy premium_proxies.txt --channel @IBIIXi --post 12 --concurrency 150
